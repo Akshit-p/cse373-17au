@@ -391,8 +391,10 @@ public class TestDoubleLinkedList extends BaseTest {
 
 		// odd elements, remove last one
 		assertEquals(3, list.delete(2));
+		
 		// even elements, remove last one
 		assertEquals(2, list.delete(1));
+		
 		// list with only one element delete.
 		assertEquals(1, list.delete(0));
 	}
