@@ -96,8 +96,8 @@ public class DoubleLinkedList<T> implements IList<T> {
     }
 
     /**
-     * This methods helps in finding node at given index efficiently by using the least path to index from front or
-     * back.
+     * This methods helps in finding node at given index efficiently by using the 
+     * least path to index from front or back.
      * 
      * @param index
      *            the position in the list for which the node is to be found.
