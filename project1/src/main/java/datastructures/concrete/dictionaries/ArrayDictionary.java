@@ -76,9 +76,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         int length = this.pairs.length;
         // double the size for new array
         Pair<K,V>[] copy = makeArrayOfPairs(length*2);
-        for (int i = 0; i < length; i++) {
-            copy[i] = new Pair<K,V>(this.pairs[i]);
-        }
+        System.arraycopy(this.pairs, 0, copy, 0, this.size);
         this.pairs = copy;
     }
     
