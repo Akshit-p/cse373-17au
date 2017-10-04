@@ -2,7 +2,6 @@ package datastructures.concrete;
 
 import datastructures.interfaces.IList;
 import misc.exceptions.EmptyContainerException;
-import misc.exceptions.NotYetImplementedException;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -57,21 +56,18 @@ public class DoubleLinkedList<T> implements IList<T> {
 
     @Override
     public T get(int index) {
-        if (index < 0 || index >= this.size) {
-            throw new IndexOutOfBoundsException();
-        }
+        indexBoundCheck(index);
         return getNode(index).data;
     }
 
     @Override
     public void set(int index, T item) {
-        if (index < 0 || index >= this.size) {
-            throw new IndexOutOfBoundsException();
-        }
+        indexBoundCheck(index);
 
         // handle the edge case of changing first element.
         if (index == 0) {
             Node<T> temp = new Node<T>(null, item, this.front.next);
+            // update the prev counter of the second element in list if present
             if (this.front.next != null) {
                 this.front.next.prev = temp;
             }
@@ -138,10 +134,6 @@ public class DoubleLinkedList<T> implements IList<T> {
             this.front.prev = temp;
             this.front = temp;
             this.size++;
-            // change back pointer if only one element in whole list.
-            if (size == 1) {
-                this.back = this.front;
-            }
         } else {
             // quickly get the node at the given index.
             Node<T> temp = getNode(index);
@@ -155,13 +147,12 @@ public class DoubleLinkedList<T> implements IList<T> {
 
     @Override
     public T delete(int index) {
-        if (index < 0 || index >= this.size) {
-            throw new IndexOutOfBoundsException();
-        }
+        indexBoundCheck(index);
 
         if (this.size == 1 && index == 0) {
             return this.remove();
         }
+        
         T data;
         if (index == 0) {
             data = this.front.data;
@@ -170,6 +161,7 @@ public class DoubleLinkedList<T> implements IList<T> {
         } else {
             Node<T> temp = getNode(index);
             data = temp.data;
+            
             // update back pointer for last element.
             if (temp.next == null) {
                 this.back = temp.prev;
@@ -208,6 +200,16 @@ public class DoubleLinkedList<T> implements IList<T> {
             return true;
         }
         return false;
+    }
+    
+    /** 
+     * helper method to check for index out of bounds exception.
+     * @param index
+     */
+    private void indexBoundCheck(int index) {
+        if (index < 0 || index >= this.size) {
+            throw new IndexOutOfBoundsException();
+        }
     }
 
     @Override

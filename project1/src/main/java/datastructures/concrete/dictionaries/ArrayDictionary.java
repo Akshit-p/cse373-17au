@@ -2,7 +2,6 @@ package datastructures.concrete.dictionaries;
 
 import datastructures.interfaces.IDictionary;
 import misc.exceptions.NoSuchKeyException;
-import misc.exceptions.NotYetImplementedException;
 
 /**
  * See IDictionary for more details on what this class should do
@@ -11,18 +10,16 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     // You may not change or rename this field: we will be inspecting
     // it using our private tests.
     private Pair<K, V>[] pairs;
-    
+
     // number of elements in the dictionary.
     private int size = 0;
-    
-    
+
     public ArrayDictionary() {
         this.pairs = makeArrayOfPairs(10);
     }
 
     /**
-     * This method will return a new, empty array of the given size
-     * that can contain Pair<K, V> objects.
+     * This method will return a new, empty array of the given size that can contain Pair<K, V> objects.
      *
      * Note that each element in the array will initially be null.
      */
@@ -45,11 +42,11 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     @Override
     public V get(K key) {
         int index = getIndexOf(key);
-        if (index < 0){
+        if (index < 0) {
             throw new NoSuchKeyException();
         }
         return this.pairs[index].value;
-        
+
     }
 
     @Override
@@ -58,34 +55,33 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         if (this.size == this.pairs.length) {
             grow();
         }
-        
+
         int index = getIndexOf(key);
         // if new key found then add the new pair.
         if (index == -1) {
-            this.pairs[this.size] = new Pair<K, V>(key,value);
+            this.pairs[this.size] = new Pair<K, V>(key, value);
             this.size++;
-        } else {    
+        } else {
             this.pairs[index].value = value;
         }
     }
-    
+
     /**
      * Expands the size of the array to be twice original.
      */
     private void grow() {
         int length = this.pairs.length;
         // double the size for new array
-        Pair<K,V>[] copy = makeArrayOfPairs(length*2);
+        Pair<K, V>[] copy = makeArrayOfPairs(length * 2);
         System.arraycopy(this.pairs, 0, copy, 0, this.size);
         this.pairs = copy;
     }
-    
-    
-    
+
     /**
      * Returns the index of the key to be found in this.
      * 
-     * @param key the key to be searched in this.
+     * @param key
+     *            the key to be searched in this.
      * @return the index of the key if found, otherwise -1.
      */
     private int getIndexOf(K key) {
@@ -93,11 +89,11 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         for (int i = 0; i < this.size; i++) {
             K checkKey = this.pairs[i].key;
             // check for null keys too.
-            if((key != null && checkKey.equals(key)) || key == checkKey) {
+            if ((key != null && checkKey.equals(key)) || key == checkKey) {
                 return i;
             }
         }
-        
+
         // no index for given key found
         return -1;
     }
@@ -118,7 +114,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         if (this.size > 0) {
             System.arraycopy(this.pairs, index + 1, this.pairs, index, size - index - 1);
         }
-        
+
     }
 
     @Override
@@ -142,17 +138,6 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         public Pair(K key, V value) {
             this.key = key;
             this.value = value;
-        }
-        
-        /**
-         * Copy constructor to create new instance of 
-         * pair form other Pair instance.
-         * 
-         * @param other the Pair object from which to create a new instance
-         */
-        public Pair(Pair<K, V> other) {
-            this.key = other.key;
-            this.value = other.value;
         }
 
         @Override
