@@ -15,6 +15,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
+/**
+ * 
+ * @author Akshit Patel
+ * @author Haobo Zhang
+ */
 public class TestDoubleLinkedList extends BaseTest {
     /**
      * Please call this method whenever you need to create a new DoubleLinkedList instance instead of calling the

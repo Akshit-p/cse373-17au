@@ -8,6 +8,9 @@ import java.util.NoSuchElementException;
 
 /**
  * Note: For more info on the expected behavior of your methods, see the source code for IList.
+ * 
+ * @author Akshit Patel
+ * @author Haobo Zhang
  */
 public class DoubleLinkedList<T> implements IList<T> {
     // You may not rename these fields or change their types.

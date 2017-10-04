@@ -5,6 +5,9 @@ import misc.exceptions.NoSuchKeyException;
 
 /**
  * See IDictionary for more details on what this class should do
+ * 
+ * @author Akshit Patel
+ * @author Haobo Zhang
  */
 public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     // You may not change or rename this field: we will be inspecting
