@@ -6,7 +6,6 @@ import calculator.gui.ImageDrawer;
 import datastructures.concrete.DoubleLinkedList;
 import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IList;
-import misc.exceptions.NotYetImplementedException;
 
 /**
  * All of the static methods in this class are given the exact same parameters for consistency. You can often ignore
@@ -29,8 +28,6 @@ public class ExpressionManipulators {
      *             if any of the expressions uses an unknown operation.
      */
     public static AstNode toDouble(Environment env, AstNode node) {
-        // To help you get started, we've implemented this method for you.
-        // You should fill in the TODOs in the 'simplifyHelper' method.
         return new AstNode(toDoubleHelper(env.getVariables(), node));
     }
 
@@ -205,7 +202,7 @@ public class ExpressionManipulators {
         }
         variables.remove(var); // clean up the x-value from the environment.
         ImageDrawer drawer = env.getImageDrawer();
-        drawer.drawScatterPlot(var + " vs f(" + var + ")", var, "f(" + var + ")" , xVal, yVal);
+        drawer.drawScatterPlot(var + " vs f(" + var + ")", var, "f(" + var + ")", xVal, yVal);
 
         // Note: every single function we add MUST return an
         // AST node that your "simplify" function is capable of handling.
