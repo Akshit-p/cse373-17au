@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     // You may not change or rename this field: we will be inspecting
     // it using our private tests.
-    private Pair<K, V>[] pairs;
+    private KVPair<K, V>[] pairs;
 
     // number of elements in the dictionary.
     private int size = 0;
@@ -30,7 +30,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
      * Note that each element in the array will initially be null.
      */
     @SuppressWarnings("unchecked")
-    private Pair<K, V>[] makeArrayOfPairs(int arraySize) {
+    private KVPair<K, V>[] makeArrayOfPairs(int arraySize) {
         // It turns out that creating arrays of generic objects in Java
         // is complicated due to something known as 'type erasure'.
         //
@@ -41,7 +41,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         // You are not required to understand how this method works, what
         // type erasure is, or how arrays and generics interact. Do not
         // modify this method in any way.
-        return (Pair<K, V>[]) (new Pair[arraySize]);
+        return (KVPair<K, V>[]) (new KVPair[arraySize]);
 
     }
 
@@ -51,7 +51,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         if (index < 0) {
             throw new NoSuchKeyException();
         }
-        return this.pairs[index].value;
+        return this.pairs[index].getValue();
 
     }
 
@@ -65,10 +65,11 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         int index = getIndexOf(key);
         // if new key found then add the new pair.
         if (index == -1) {
-            this.pairs[this.size] = new Pair<K, V>(key, value);
+            this.pairs[this.size] = new KVPair<K, V>(key, value);
             this.size++;
         } else {
-            this.pairs[index].value = value;
+            KVPair<K, V> temp = this.pairs[index];
+            this.pairs[index] = new KVPair<>(temp.getKey(), value);
         }
     }
 
@@ -78,7 +79,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     private void grow() {
         int length = this.pairs.length;
         // double the size for new array
-        Pair<K, V>[] copy = makeArrayOfPairs(length * 2);
+        KVPair<K, V>[] copy = makeArrayOfPairs(length * 2);
         System.arraycopy(this.pairs, 0, copy, 0, this.size);
         this.pairs = copy;
     }
@@ -93,7 +94,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     private int getIndexOf(K key) {
         // loop until we have elements and get the index
         for (int i = 0; i < this.size; i++) {
-            K checkKey = this.pairs[i].key;
+            K checkKey = this.pairs[i].getKey();
             // check for null keys too.
             if ((key != null && checkKey.equals(key)) || key == checkKey) {
                 return i;
@@ -110,7 +111,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         if (index < 0) {
             throw new NoSuchKeyException();
         }
-        V value = this.pairs[index].value;
+        V value = this.pairs[index].getValue();
         shift(index);
         size--;
         return value;
@@ -136,24 +137,27 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         return this.size;
     }
 
-    private static class Pair<K, V> {
-        public K key;
-        public V value;
-
-        // You may add constructors and methods to this class as necessary.
-        public Pair(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return this.key + "=" + this.value;
-        }
-    }
 
     @Override
     public Iterator<KVPair<K, V>> iterator() {
-        throw new NoSuchElementException();
+        return new DictionaryIterator<>(this.pairs);
+    }
+    
+    private static class DictionaryIterator<K, V> implements Iterator<KVPair<K, V>> {
+
+        public DictionaryIterator(KVPair<K, V>[] pairs) {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public boolean hasNext() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public KVPair<K, V> next() {
+            throw new NoSuchElementException();
+        }
+        
     }
 }
