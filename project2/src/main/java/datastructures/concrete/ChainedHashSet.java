@@ -28,9 +28,9 @@ public class ChainedHashSet<T> implements ISet<T> {
     @Override
     public void remove(T item) {
         try {
-        		this.map.remove(item);
+            this.map.remove(item);
         } catch (NoSuchKeyException e) {
-        		throw new NoSuchElementException();
+            throw new NoSuchElementException();
         }
     }
 
