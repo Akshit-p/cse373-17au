@@ -96,7 +96,7 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
         for (int i = 0; i < this.size; i++) {
             K checkKey = this.pairs[i].getKey();
             // check for null keys too.
-            if ((key != null && checkKey.equals(key)) || key == checkKey) {
+            if ((key != null && checkKey != null && checkKey.equals(key)) || key == checkKey) {
                 return i;
             }
         }
@@ -140,23 +140,37 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
 
     @Override
     public Iterator<KVPair<K, V>> iterator() {
-        return new DictionaryIterator<>(this.pairs);
+        return new DictionaryIterator<>(this);
     }
     
     private static class DictionaryIterator<K, V> implements Iterator<KVPair<K, V>> {
-
-        public DictionaryIterator(KVPair<K, V>[] pairs) {
-            throw new NoSuchElementException();
+        // the elements that we need to iterate
+        private KVPair<K, V>[] dictionary;
+        // the total number of elements in the array.
+        private int size;
+        // keeping track of the last index to move to next index for next element.
+        private int currIndex;
+        
+        public DictionaryIterator(ArrayDictionary<K, V> dictionary) {
+            this.dictionary = dictionary.pairs;
+            this.size = dictionary.size();
+            currIndex = 0;
         }
 
         @Override
         public boolean hasNext() {
-            throw new NoSuchElementException();
+            if (this.currIndex < this.size) {
+                return true;
+            }
+            return false;
         }
 
         @Override
         public KVPair<K, V> next() {
-            throw new NoSuchElementException();
+            if (!this.hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return dictionary[this.currIndex++]; 
         }
         
     }
