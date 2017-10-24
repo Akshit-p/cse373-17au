@@ -53,7 +53,7 @@ public class DoubleLinkedList<T> implements IList<T> {
             this.back = this.back.prev;
             this.back.next = null;
         }
-        size--;
+        this.size--;
         return data;
     }
 
@@ -174,7 +174,7 @@ public class DoubleLinkedList<T> implements IList<T> {
                 temp.next.prev = temp.prev;
             }
         }
-        size--;
+        this.size--;
         return data;
     }
 
