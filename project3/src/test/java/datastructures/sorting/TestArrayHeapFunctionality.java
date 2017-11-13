@@ -66,9 +66,8 @@ public class TestArrayHeapFunctionality extends BaseTest {
         makeInstance().removeMin();
     }
     
-    @Test
+    @Test(timeout=SECOND)
     public void testRemoveMinExhaustive() {
-        // can make a setup process that i only test for performance of heap removal.
         IPriorityQueue<Integer> testQ = makeInstance();
         for (int i = 0 ; i < 1000; i++) {
             testQ.insert(i);
