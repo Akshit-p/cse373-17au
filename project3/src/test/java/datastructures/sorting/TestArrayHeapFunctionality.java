@@ -4,13 +4,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-
 import misc.BaseTest;
 import datastructures.concrete.ArrayHeap;
 import datastructures.interfaces.IPriorityQueue;
@@ -122,18 +115,57 @@ public class TestArrayHeapFunctionality extends BaseTest {
     
     @Test(timeout=SECOND)
     public void testRemoveMinAndPeekMinCombo() {
-     // can make a setup process that i only test for performance of heap removal.
+        // can make a setup process that i only test for performance of heap removal.
         IPriorityQueue<Integer> testQ = makeInstance();
-        for (int i = 200 ; i > 0; i++) {
+        for (int i = 1000 ; i > 0; i--) {
             testQ.insert(i);
         }
-        int qSize = 200;
-        for(int i = 0; i < 200; i++) {
-            assertEquals(i, testQ.peekMin());
-            int min = testQ.removeMin();
-            assertEquals(testQ.peekMin(), min);
+        int qSize = 1000;
+        for(int i = 1; i <= 1000; i++) {
+            int min = testQ.peekMin();
+            assertEquals(i, min);
+            assertEquals(min, testQ.removeMin());
             assertEquals(--qSize, testQ.size());
         }
+        //duplication test
+        testQ.insert(2);
+        testQ.insert(1);
+        testQ.insert(1);
+        testQ.insert(1);
+        testQ.insert(1);
+        testQ.insert(2);
+        
+        int min = testQ.peekMin();
+        assertEquals(1, min);
+        assertEquals(min, testQ.removeMin());
+        assertEquals(5, testQ.size());
+        
+        min = testQ.peekMin();
+        assertEquals(1, min);
+        assertEquals(min, testQ.removeMin());
+        assertEquals(4, testQ.size());
+        
+        min = testQ.peekMin();
+        assertEquals(1, min);
+        assertEquals(min, testQ.removeMin());
+        assertEquals(3, testQ.size());
+        
+        min = testQ.peekMin();
+        assertEquals(1, min);
+        assertEquals(min, testQ.removeMin());
+        assertEquals(2, testQ.size());
+        
+        min = testQ.peekMin();
+        assertEquals(2, min);
+        assertEquals(min, testQ.removeMin());
+        assertEquals(1, testQ.size());
+        
+        min = testQ.peekMin();
+        assertEquals(2, min);
+        assertEquals(min, testQ.removeMin());
+        assertEquals(0, testQ.size());
+        
+
         try {
             testQ.peekMin();
             fail();
@@ -151,11 +183,9 @@ public class TestArrayHeapFunctionality extends BaseTest {
     @Test(timeout=SECOND)
     public void testInsert() {
         IPriorityQueue<Integer> qSize10 = makeInstance();
-        IPriorityQueue<Integer> qSize200 = makeInstance();
         IPriorityQueue<Integer> qSize500 = makeInstance();
-        IPriorityQueue<Integer> qSize300Reverse = makeInstance();
-        IPriorityQueue<Integer> qSize100Random = makeInstance();
-        
+        IPriorityQueue<Integer> qSize1000 = makeInstance();
+        IPriorityQueue<Integer> qSize300Reverse = makeInstance();        
         
         for (int i = 0 ; i < 10; i++) {
             qSize10.insert(i);
@@ -163,35 +193,25 @@ public class TestArrayHeapFunctionality extends BaseTest {
         assertEquals(10, qSize10.size());
         assertEquals(0, qSize10.peekMin());
         
-        for (int i = 0 ; i < 200; i++) {
-            qSize200.insert(i);
-        }
-        assertEquals(200, qSize200.size());
-        assertEquals(0, qSize200.peekMin());
-        
         for (int i = 0 ; i < 500; i++) {
             qSize500.insert(i);
         }
         assertEquals(500, qSize500.size());
         assertEquals(0, qSize500.peekMin());
         
-        for (int i = 300 ; i > 0; i++) {
+
+        for (int i = 0 ; i < 1000; i++) {
+            qSize1000.insert(i);
+        }
+        assertEquals(1000, qSize1000.size());
+        assertEquals(0, qSize1000.peekMin());
+        
+        
+        for (int i = 300 ; i > 0; i--) {
             qSize300Reverse.insert(i);
         }
         assertEquals(300, qSize300Reverse.size());
         assertEquals(1, qSize300Reverse.peekMin());
-        
-        int min = 0;
-        Random r = new Random();
-        for (int i = 0 ; i < 100; i++) {
-            int num = r.nextInt(50);
-            if (i == 0 || min > num) {
-                min = num;
-            }
-            qSize100Random.insert(num);
-        }
-        assertEquals(100, qSize100Random.size());
-        assertEquals(min, qSize100Random.peekMin());
     }
     
     @Test(expected=IllegalArgumentException.class, timeout=SECOND)
