@@ -35,7 +35,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
         assertEquals(1, heap.size());
     }
     
-    @Test(timeout=SECOND)
+    @Test
     public void testRemoveMin() {
         //build queue
         IPriorityQueue<Integer> testQ = makeInstance();
@@ -73,7 +73,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
         makeInstance().removeMin();
     }
     
-    @Test(timeout=SECOND)
+    @Test
     public void testRemoveMinExhaustive() {
         // can make a setup process that i only test for performance of heap removal.
         IPriorityQueue<Integer> testQ = makeInstance();
@@ -200,7 +200,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
     }
     
     @Test(timeout=SECOND)
-    public void testIsEmpty(){
+    public void testSizeUpdate(){
         IPriorityQueue<Integer> testQ = makeInstance();
         assertTrue(testQ.isEmpty());
         
