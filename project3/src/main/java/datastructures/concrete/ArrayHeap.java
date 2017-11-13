@@ -2,9 +2,6 @@ package datastructures.concrete;
 
 import datastructures.interfaces.IPriorityQueue;
 import misc.exceptions.EmptyContainerException;
-import misc.exceptions.NotYetImplementedException;
-
-import java.util.Arrays;
 
 /**
  * See IPriorityQueue for details on what each method must do.
@@ -16,30 +13,31 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     // You MUST use this field to store the contents of your heap.
     // You may NOT rename this field: we will be inspecting it within
     // our private tests.
-    private T[] heap; 
+    private T[] heap;
 
-    // Feel free to add more fields and constants.
+    // Num of elements in the heap
     private int size;
+    // the initial capacity of the heap.
+    private static final int DEFAULT_CAPACITY = 1 + NUM_CHILDREN + NUM_CHILDREN * NUM_CHILDREN;
 
     public ArrayHeap() {
-        this.heap = makeArrayOfT(21);
+        this.heap = makeArrayOfT(DEFAULT_CAPACITY);
         this.size = 0;
     }
 
     /**
-     * This method will return a new, empty array of the given size
-     * that can contain elements of type T.
+     * This method will return a new, empty array of the given size that can contain elements of type T.
      *
      * Note that each element in the array will initially be null.
      */
     @SuppressWarnings("unchecked")
-    private T[] makeArrayOfT(int size) {
+    private T[] makeArrayOfT(int capacity) {
         // This helper method is basically the same one we gave you
         // in ArrayDictionary and ChainedHashDictionary.
         //
         // As before, you do not need to understand how this method
         // works, and should not modify it in any way.
-        return (T[]) (new Comparable[size]);
+        return (T[]) (new Comparable[capacity]);
     }
 
     @Override
@@ -48,63 +46,66 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
             throw new EmptyContainerException();
         }
         T min = this.heap[0];
-        this.heap[0] = this.heap[this.size-1];
-        percolateDown(this.heap, 1);
+        this.heap[0] = this.heap[this.size - 1];
+        percolateDown();
         shrink();
         return min;
     }
 
     private void shrink() {
-        if (this.heap.length > 21 && this.size < this.heap.length / 3) {
+        if (this.heap.length > DEFAULT_CAPACITY && this.size < this.heap.length / 3) {
             T[] temp = makeArrayOfT(this.heap.length / 2);
             System.arraycopy(this.heap, 0, temp, 0, this.size);
             this.heap = temp;
         }
-        
-    }
-    
-    //TODO: clean up code.
 
-    private void percolateDown(T[] other, int k) {
-        T lastElement = heap[this.size-1];
-        heap[--this.size] = null;
+    }
+
+    private void percolateDown() {
+        T lastElement = this.heap[this.size - 1];
+        // remove the last element that was shifted up and update the size.
+        this.heap[--this.size] = null;
+
         int minChildIndex;
-        for (int i = 0; (i*4)+1 < size; i = minChildIndex) {
+
+        // loop through each swap operation between parent and child until children are present
+        for (int i = 0; (i * NUM_CHILDREN) + 1 < size; i = minChildIndex) {
             // Assuming that the smallest child is the first child
-            minChildIndex = (i*4)+1;
-            
+            minChildIndex = (i * NUM_CHILDREN) + 1;
+
             // no more children so get out of here!
-            if (minChildIndex > size) { 
+            if (minChildIndex > size) {
                 break;
             }
-            
-            //find the smallest child to swap with to preserve min-heap property
+
+            // find the smallest child to swap with to preserve min-heap property
             int minIndex = minChildIndex;
-            for (int j = 1; j < 4; j++) {
+            for (int j = 1; j < NUM_CHILDREN; j++) {
                 // if the current index equal to size then we have seen all children.
-                if (minChildIndex+j >= size) {
+                if (minChildIndex + j >= size) {
                     break;
                 }
-                if(heap[minIndex].compareTo(heap[minChildIndex + j]) > 0)
+                if (this.heap[minIndex].compareTo(this.heap[minChildIndex + j]) > 0) {
                     minIndex = minChildIndex + j;
+                }
             }
             // update the minChildIndex to the index of the child that is new lowest.
             minChildIndex = minIndex;
-            
-            // if the child we found smaller than the parent, we should swap the two 
+
+            // if the child we found is smaller than the parent, we should swap the two
             // and continue down to put the parent in the right place.
-            if (lastElement.compareTo(heap[minChildIndex]) > 0) {
-                swap(heap, i, minChildIndex);
+            if (lastElement.compareTo(this.heap[minChildIndex]) > 0) {
+                swap(i, minChildIndex);
             } else {
                 break;
             }
         }
     }
 
-    private void swap(T[] other, int p1, int p2) {
-        T temp = other[p1];
-        other[p1] = other[p2];
-        other[p2] = temp;
+    private void swap(int index1, int index2) {
+        T temp = this.heap[index1];
+        this.heap[index1] = this.heap[index2];
+        this.heap[index2] = temp;
     }
 
     @Override
@@ -120,27 +121,33 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         if (item == null) {
             throw new IllegalArgumentException();
         }
-        grow();        
-        this.heap[this.size] = item;
-        percolateUp(this.heap, this.size);
+        grow();
+        percolateUp(item, this.size);
         this.size++;
     }
 
     private void grow() {
         if (this.size + 0 >= this.heap.length) {
-            T[] temp = makeArrayOfT(this.heap.length*2);
+            T[] temp = makeArrayOfT(this.heap.length * 2);
             System.arraycopy(this.heap, 0, temp, 0, this.size);
             this.heap = temp;
         }
     }
 
-    private void percolateUp(T[] other, int i) {
-        while(i > 0 && (i+1)/4 > 1) {
-            if (other[i].compareTo(other[(i+1)/4]) < 0) {
-                swap(other, i, (i+1)/4);
-                i = (i+1)/4; 
+    private void percolateUp(T item, int i) {
+        this.heap[this.size] = item;
+        // insert elements by adding to the end and then swapping upwards.
+        int parent = 0;
+        while (i > 0 && parent >= 0) {
+            parent = (i - 1) / NUM_CHILDREN;
+            if (this.heap[i].compareTo(this.heap[parent]) < 0) {
+                swap(i, parent);
+                // repeat the process until correct position reached.
+                i = parent;
+            } else {
+            // we have the element in the right position so we can exit.
+                break;
             }
-            i = 0;
         }
     }
 
@@ -148,7 +155,7 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     public int size() {
         return this.size;
     }
-    
+
     public String toString() {
         return this.heap.toString();
     }
