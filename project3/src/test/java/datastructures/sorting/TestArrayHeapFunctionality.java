@@ -4,6 +4,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import misc.BaseTest;
 import datastructures.concrete.ArrayHeap;
 import datastructures.interfaces.IPriorityQueue;
@@ -25,6 +28,40 @@ public class TestArrayHeapFunctionality extends BaseTest {
         IPriorityQueue<Integer> heap = this.makeInstance();
         heap.insert(3);
         assertEquals(1, heap.size());
+    }
+    
+    private Set<String> testSet;
+    
+    private IPriorityQueue<String> makeStringHeap(int type){
+        IPriorityQueue<String> heap = this.makeInstance();
+        if (type == 1) {
+            // unique elements
+            testSet = new TreeSet<>();
+            for (int i = 0; i < 500; i++) {
+                heap.insert("e" + i);
+                testSet.add("e"+i);
+                
+            }
+        } else if (type == 2) {
+            // only duplicated of one element but last element is large
+            for (int i = 0; i < 99; i++) {
+                heap.insert("e1");
+            }
+            heap.insert("ee");
+        } else if (type == 3) {
+            // mix of elements
+            heap.insert("e1e");
+            heap.insert("e1E");
+            heap.insert("e1");
+            heap.insert("e11");
+            heap.insert("e1");
+            heap.insert("ee");
+            heap.insert("eee");
+            heap.insert("e2e");
+            heap.insert("ee2");
+            // [e1, e1e, e1E, e11, e1, ee, eee, e2e, ee2]
+        }
+        return heap;
     }
     
     @Test
@@ -58,6 +95,18 @@ public class TestArrayHeapFunctionality extends BaseTest {
         assertEquals(5, testQ.removeMin());
         assertEquals(0, testQ.size());
         assertTrue(testQ.isEmpty());
+        
+        IPriorityQueue<String> stringQ = makeStringHeap(3);
+        // e1,e1,e11,e1E,e1e,e2e,ee,ee2,eee
+        assertEquals("e1", stringQ.removeMin());
+        assertEquals("e1", stringQ.removeMin());
+        assertEquals("e11", stringQ.removeMin());
+        assertEquals("e1E", stringQ.removeMin());
+        assertEquals("e1e", stringQ.removeMin());
+        assertEquals("e2e", stringQ.removeMin());
+        assertEquals("ee", stringQ.removeMin());
+        assertEquals("ee2", stringQ.removeMin());
+        assertEquals("eee", stringQ.removeMin());
     }
     
     @Test(expected=EmptyContainerException.class, timeout=SECOND)
@@ -82,6 +131,25 @@ public class TestArrayHeapFunctionality extends BaseTest {
         } catch (EmptyContainerException e) {
             //test passed!
         }
+        // string inputs
+        IPriorityQueue<String> stringQ = makeStringHeap(1);
+        qSize = 500;
+        for (String ele: testSet) {
+            assertEquals(ele, stringQ.removeMin());
+            assertEquals(--qSize, stringQ.size());
+        }
+        
+        // duplicate string inputs        
+        qSize = 100;
+        stringQ = makeStringHeap(2);
+        for (int i = 0; i < 99; i++) {
+            assertEquals("e1", stringQ.removeMin());
+            assertEquals(--qSize, stringQ.size());
+        }
+        //last element
+        assertEquals("ee", stringQ.removeMin());
+        assertTrue(stringQ.isEmpty());
+        
     }
     
     @Test(timeout=SECOND)
