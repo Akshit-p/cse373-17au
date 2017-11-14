@@ -65,7 +65,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
     }
     
     @Test
-    public void testRemoveMin() {
+    public void testRemoveMinInteger() {
         //build queue
         IPriorityQueue<Integer> testQ = makeInstance();
         // small full array
@@ -95,7 +95,10 @@ public class TestArrayHeapFunctionality extends BaseTest {
         assertEquals(5, testQ.removeMin());
         assertEquals(0, testQ.size());
         assertTrue(testQ.isEmpty());
-        
+    }
+    
+    @Test(timeout=SECOND)
+    public void testRemoveMinStrings(){ 
         IPriorityQueue<String> stringQ = makeStringHeap(3);
         // e1,e1,e11,e1E,e1e,e2e,ee,ee2,eee
         assertEquals("e1", stringQ.removeMin());
