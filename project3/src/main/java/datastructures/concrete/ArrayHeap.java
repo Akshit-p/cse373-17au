@@ -127,7 +127,7 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     }
 
     private void grow() {
-        if (this.size + 0 >= this.heap.length) {
+        if (this.size >= this.heap.length) {
             T[] temp = makeArrayOfT(this.heap.length * 2);
             System.arraycopy(this.heap, 0, temp, 0, this.size);
             this.heap = temp;
