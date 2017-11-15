@@ -7,7 +7,7 @@ import misc.exceptions.EmptyContainerException;
  * See IPriorityQueue for details on what each method must do.
  */
 public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
-    // See spec: you must implement a implement a 4-heap.
+    // this implementation is n-heap. and for this assignment we want 4-heap/
     private static final int NUM_CHILDREN = 4;
 
     // You MUST use this field to store the contents of your heap.
