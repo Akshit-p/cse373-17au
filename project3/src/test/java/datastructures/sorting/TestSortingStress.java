@@ -71,11 +71,10 @@ public class TestSortingStress extends BaseTest {
 
     }
 
-  //Takes forever to run!
-    @Test(timeout=100*SECOND)
+    //Takes forever to run!
+    @Test(timeout=10*SECOND)
     public void testTopKStringListStress() {
         List<String> sortList = new ArrayList<>(1000000);
-        
         IList<String> list = new DoubleLinkedList<>();
         for (int i = 0; i < 1000000; i++) {
             list.add("a"+i);
@@ -83,27 +82,26 @@ public class TestSortingStress extends BaseTest {
         }
         Collections.sort(sortList);
         IList<String> top = Searcher.topKSort(50000, list);
-        assertEquals(5, top.size());
-        for (int i = 950000; i < top.size(); i++) {
-            //this is wrong: should not be top.get(i) since i does not begin from 0 anymore
-            assertEquals(sortList.get(i), top.get(i));           
+        assertEquals(50000, top.size());
+        
+        int count = 950000;
+        for (String i : top) {
+            assertEquals(sortList.get(count++), i);
         }
     }
     
     //Takes forever to run!
     @Test(timeout=100*SECOND)
     public void testTopKIntegerListStress() {
-        List<Integer> sortList = new ArrayList<>(1000000);
         IList<Integer> list = new DoubleLinkedList<>();
         for (int i = 1000000; i > 0; i--) {
             list.add(i);
-            sortList.add(i);
         }
-        Collections.sort(sortList);
         IList<Integer> top = Searcher.topKSort(50000, list);
-        assertEquals(5, top.size());
-        for (int i = 0; i < top.size(); i++) {            
-            assertEquals(sortList.get(i+950000), top.get(i));           
+        assertEquals(50000, top.size());
+        int count = 950001;
+        for (int i : top) {            
+            assertEquals(count++, i);           
         }
     }
 
