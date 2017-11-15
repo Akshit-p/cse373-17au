@@ -46,9 +46,7 @@ public class Searcher {
         // iterator needs to be used to ensure O(1) gets.
         int count = 0;
         for (T ele: input) {
-            if (count == input.size()) {
-                break;
-            } else if (count < k) {
+            if (count < k) {
                 // this method is necessary to ensure O(nlog(k))) runtime as the heap size it at max K.
                 minHeap.insert(ele);
             } else {
