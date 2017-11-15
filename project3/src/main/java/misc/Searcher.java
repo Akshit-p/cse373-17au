@@ -49,6 +49,7 @@ public class Searcher {
             if (count == input.size()) {
                 break;
             } else if (count < k) {
+                // this method is necessary to ensure O(nlog(k))) runtime as the heap size it at max K.
                 minHeap.insert(ele);
             } else {
                 T minVal = minHeap.peekMin();

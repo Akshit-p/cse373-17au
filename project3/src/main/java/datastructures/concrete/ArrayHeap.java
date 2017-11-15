@@ -145,7 +145,7 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
                 // repeat the process until correct position reached.
                 i = parent;
             } else {
-            // we have the element in the right position so we can exit.
+                // we have the element in the right position so we can exit.
                 break;
             }
         }
@@ -154,9 +154,5 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     @Override
     public int size() {
         return this.size;
-    }
-
-    public String toString() {
-        return this.heap.toString();
     }
 }
