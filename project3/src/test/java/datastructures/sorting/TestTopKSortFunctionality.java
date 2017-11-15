@@ -25,8 +25,9 @@ public class TestTopKSortFunctionality extends BaseTest {
         }
         IList<Integer> top = Searcher.topKSort(5, list);
         assertEquals(5, top.size());
-        for (int i = 0; i < top.size(); i++) {
-            assertEquals(15 + i, top.get(i));
+        int ele = 15;
+        for (int i : top) {
+            assertEquals(ele++, i);
         }
     }
 
@@ -43,8 +44,9 @@ public class TestTopKSortFunctionality extends BaseTest {
         }
         IList<Integer> top = Searcher.topKSort(101, list);
         assertEquals(100, top.size());
-        for (int i = 0; i < top.size(); i++) {
-            assertEquals(i, top.get(i));
+        int ele = 0;
+        for (int i : top) {
+            assertEquals(ele++, i);
         }
     }
 
@@ -56,8 +58,9 @@ public class TestTopKSortFunctionality extends BaseTest {
         }
         IList<Integer> top = Searcher.topKSort(100, list);
         assertEquals(100, top.size());
-        for (int i = 0; i < top.size(); i++) {
-            assertEquals(i, top.get(i));
+        int ele = 0;
+        for (int i : top) {
+            assertEquals(ele++, i);
         }
     }
 
@@ -77,12 +80,14 @@ public class TestTopKSortFunctionality extends BaseTest {
         assertTrue(top.isEmpty());
         top = Searcher.topKSort(19, list);
         assertEquals(19, top.size());
-        for (int i = 0; i < top.size(); i++) {
-            assertEquals(i + 2, top.get(i));
+        int ele = 2;
+        for (int i : top) {
+            assertEquals(ele++, i);
         }
         // Check for no modification for the client list
-        for (int i = 0; i < list.size(); i++) {
-            assertEquals(20 - i, list.get(i));
+        ele = 20;
+        for (int i : list) {
+            assertEquals(ele--, i);
         }
     }
 
@@ -94,8 +99,10 @@ public class TestTopKSortFunctionality extends BaseTest {
         }
         IList<String> top = Searcher.topKSort(5, list);
         assertEquals(5, top.size());
-        for (int i = 0; i < top.size(); i++) {
-            assertEquals("a" + (i + 5), top.get(i));
+        String ele = "a";
+        int count = 5;
+        for (String i : top) {
+            assertEquals(ele + (count++), i);
         }
     }
 
@@ -111,8 +118,10 @@ public class TestTopKSortFunctionality extends BaseTest {
         Collections.sort(sortList);
         IList<String> top = Searcher.topKSort(200, list);
         assertEquals(200, top.size());
-        for (int i = 0; i < top.size(); i++) {
-            assertEquals(sortList.get(i + 300), top.get(i));
+        
+        int count = 300;
+        for (String i : top) {
+            assertEquals(sortList.get(count++), i);
         }
     }
 }
