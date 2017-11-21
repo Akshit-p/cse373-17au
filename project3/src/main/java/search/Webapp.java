@@ -48,6 +48,12 @@ public class Webapp {
                 .port(port);
         this.http.get("/", this::handleMain);
         this.http.get("/search", this::handleSearch);
+        
+        this.http.exception(Exception.class, (ex, req, res) -> {
+            ex.printStackTrace();
+            res.status(500);
+            res.body("<h1>500 Internal Server Error</h1><p>See console for stack trace.</p>");
+        });
     }
 
     /**

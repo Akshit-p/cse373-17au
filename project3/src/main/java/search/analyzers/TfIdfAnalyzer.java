@@ -1,5 +1,8 @@
 package search.analyzers;
 
+import datastructures.concrete.ChainedHashSet;
+import datastructures.concrete.KVPair;
+import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
@@ -35,8 +38,8 @@ public class TfIdfAnalyzer {
         // You should uncomment these lines when you're ready to begin working
         // on this class.
 
-        //this.idfScores = this.computeIdfScores(webpages);
-        //this.documentTfIdfVectors = this.computeAllDocumentTfIdfVectors(webpages);
+        this.idfScores = this.computeIdfScores(webpages);
+        this.documentTfIdfVectors = this.computeAllDocumentTfIdfVectors(webpages);
     }
 
     // Note: this method, strictly speaking, doesn't need to exist. However,
@@ -57,7 +60,27 @@ public class TfIdfAnalyzer {
      * in any documents to their IDF score.
      */
     private IDictionary<String, Double> computeIdfScores(ISet<Webpage> pages) {
-        throw new NotYetImplementedException();
+        IDictionary<String, Double> idfScores = new ChainedHashDictionary<>();
+        for (Webpage w: pages) {
+           IList<String> words = w.getWords();
+           ISet<String> visited = new ChainedHashSet<>();
+           for (String word: words) {
+               if (!visited.contains(word)) {
+                   if (!idfScores.containsKey(word)) {
+                       idfScores.put(word, 1.0);
+                   } else {
+                       double score = idfScores.get(word);
+                       idfScores.put(word, ++score);
+                   }
+                   visited.add(word);
+               }
+           }
+        }
+        for (KVPair<String, Double> pair: idfScores) {
+            double idf = Math.log(pages.size()/pair.getValue());
+            idfScores.put(pair.getKey(), idf);
+        }
+        return idfScores;
     }
 
     /**
@@ -67,7 +90,17 @@ public class TfIdfAnalyzer {
      * We are treating the list of words as if it were a document.
      */
     private IDictionary<String, Double> computeTfScores(IList<String> words) {
-        throw new NotYetImplementedException();
+        IDictionary<String, Double> tfScores = new ChainedHashDictionary<>();
+        double incrementScore = 1.0/words.size();
+        for (String word: words) {
+            if (!tfScores.containsKey(word)) {
+                tfScores.put(word, incrementScore);
+            } else {
+                double score = tfScores.get(word);
+                tfScores.put(word, score + incrementScore);
+            }
+        }
+        return tfScores;
     }
 
     /**
@@ -76,7 +109,17 @@ public class TfIdfAnalyzer {
     private IDictionary<URI, IDictionary<String, Double>> computeAllDocumentTfIdfVectors(ISet<Webpage> pages) {
         // Hint: this method should use the idfScores field and
         // call the computeTfScores(...) method.
-        throw new NotYetImplementedException();
+        IDictionary<URI, IDictionary<String, Double>> relevance = new ChainedHashDictionary<>();
+        for (Webpage w: pages) {
+            IList<String> words = w.getWords();
+            IDictionary<String, Double> tfScore = this.computeTfScores(words);
+            IDictionary<String, Double> tfIdfvector = new ChainedHashDictionary<>();
+            for (String word: words) {
+                tfIdfvector.put(word, tfScore.get(word)*this.idfScores.get(word));
+            }            
+            relevance.put(w.getUri(), tfIdfvector);
+        }
+        return relevance;
     }
 
     /**
@@ -96,6 +139,40 @@ public class TfIdfAnalyzer {
         //    Add a third field containing that information.
         //
         // 2. See if you can combine or merge one or more loops.
+        IDictionary<String, Double> tfIdfvector = this.documentTfIdfVectors.get(pageUri);
+        IDictionary<String, Double> tfScoreQuery = this.computeTfScores(query);
+        IDictionary<String, Double> queryTfIdf = new ChainedHashDictionary<>();
+        for (String word: query) {
+            double idf = 0.0;
+            if (this.idfScores.containsKey(word)) {
+                idf = this.idfScores.get(word);
+            }
+            double tf = tfScoreQuery.get(word);
+            queryTfIdf.put(word, tf*idf);
+        }
+        
+        double numerator = 0.0;
+        for (String word: query) {
+            double docWordScore = 0.0;
+            if (tfIdfvector.containsKey(word)) {
+                docWordScore = tfIdfvector.get(word);
+            }
+            double queryWordScore = queryTfIdf.get(word);
+            numerator += docWordScore*queryWordScore;
+        }
+        double denominator = norm(tfIdfvector) * norm(queryTfIdf);
+        if (denominator != 0) {
+            return numerator / denominator;
+        }
         return 0.0;
+    }
+
+    private double norm(IDictionary<String, Double> tfIdfvector) {
+        double result = 0.0;
+        for (KVPair<String, Double> pair: tfIdfvector) {
+            double score = pair.getValue();
+            result += score * score;
+        }
+        return Math.sqrt(result);
     }
 }
