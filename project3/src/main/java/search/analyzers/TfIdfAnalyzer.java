@@ -6,14 +6,12 @@ import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
-import misc.exceptions.NotYetImplementedException;
 import search.models.Webpage;
 
 import java.net.URI;
 
 /**
- * This class is responsible for computing how "relevant" any given document is
- * to a given search query.
+ * This class is responsible for computing how "relevant" any given document is to a given search query.
  *
  * See the spec for more details.
  */
@@ -29,6 +27,7 @@ public class TfIdfAnalyzer {
     private IDictionary<URI, IDictionary<String, Double>> documentTfIdfVectors;
 
     // Feel free to add extra fields and helper methods.
+    private IDictionary<URI, Double> documentNorm;
 
     public TfIdfAnalyzer(ISet<Webpage> webpages) {
         // Implementation note: We have commented these method calls out so your
@@ -40,6 +39,7 @@ public class TfIdfAnalyzer {
 
         this.idfScores = this.computeIdfScores(webpages);
         this.documentTfIdfVectors = this.computeAllDocumentTfIdfVectors(webpages);
+        this.documentNorm = this.computeDocNorm();
     }
 
     // Note: this method, strictly speaking, doesn't need to exist. However,
@@ -56,43 +56,42 @@ public class TfIdfAnalyzer {
     // correct answer in an efficient manner.
 
     /**
-     * This method should return a dictionary mapping every single unique word found
-     * in any documents to their IDF score.
+     * This method should return a dictionary mapping every single unique word found in any documents to their IDF
+     * score.
      */
     private IDictionary<String, Double> computeIdfScores(ISet<Webpage> pages) {
-        IDictionary<String, Double> idfScores = new ChainedHashDictionary<>();
-        for (Webpage w: pages) {
-           IList<String> words = w.getWords();
-           ISet<String> visited = new ChainedHashSet<>();
-           for (String word: words) {
-               if (!visited.contains(word)) {
-                   if (!idfScores.containsKey(word)) {
-                       idfScores.put(word, 1.0);
-                   } else {
-                       double score = idfScores.get(word);
-                       idfScores.put(word, ++score);
-                   }
-                   visited.add(word);
-               }
-           }
+        IDictionary<String, Double> scores = new ChainedHashDictionary<>();
+        for (Webpage w : pages) {
+            IList<String> words = w.getWords();
+            ISet<String> visited = new ChainedHashSet<>();
+            for (String word : words) {
+                if (!visited.contains(word)) {
+                    if (!scores.containsKey(word)) {
+                        scores.put(word, 1.0);
+                    } else {
+                        double score = scores.get(word);
+                        scores.put(word, ++score);
+                    }
+                    visited.add(word);
+                }
+            }
         }
-        for (KVPair<String, Double> pair: idfScores) {
-            double idf = Math.log(pages.size()/pair.getValue());
-            idfScores.put(pair.getKey(), idf);
+        for (KVPair<String, Double> pair : scores) {
+            double idf = Math.log(pages.size() / pair.getValue());
+            scores.put(pair.getKey(), idf);
         }
-        return idfScores;
+        return scores;
     }
 
     /**
-     * Returns a dictionary mapping every unique word found in the given list
-     * to their term frequency (TF) score.
+     * Returns a dictionary mapping every unique word found in the given list to their term frequency (TF) score.
      *
      * We are treating the list of words as if it were a document.
      */
     private IDictionary<String, Double> computeTfScores(IList<String> words) {
         IDictionary<String, Double> tfScores = new ChainedHashDictionary<>();
-        double incrementScore = 1.0/words.size();
-        for (String word: words) {
+        double incrementScore = 1.0 / words.size();
+        for (String word : words) {
             if (!tfScores.containsKey(word)) {
                 tfScores.put(word, incrementScore);
             } else {
@@ -110,66 +109,82 @@ public class TfIdfAnalyzer {
         // Hint: this method should use the idfScores field and
         // call the computeTfScores(...) method.
         IDictionary<URI, IDictionary<String, Double>> relevance = new ChainedHashDictionary<>();
-        for (Webpage w: pages) {
+        for (Webpage w : pages) {
             IList<String> words = w.getWords();
             IDictionary<String, Double> tfScore = this.computeTfScores(words);
             IDictionary<String, Double> tfIdfvector = new ChainedHashDictionary<>();
-            for (String word: words) {
-                tfIdfvector.put(word, tfScore.get(word)*this.idfScores.get(word));
-            }            
+            for (String word : words) {
+                tfIdfvector.put(word, tfScore.get(word) * this.idfScores.get(word));
+            }
             relevance.put(w.getUri(), tfIdfvector);
         }
         return relevance;
     }
 
     /**
-     * Returns the cosine similarity between the TF-IDF vector for the given query and the
-     * URI's document.
+     * Returns the cosine similarity between the TF-IDF vector for the given query and the URI's document.
      *
-     * Precondition: the given uri must have been one of the uris within the list of
-     *               webpages given to the constructor.
+     * Precondition: the given uri must have been one of the uris within the list of webpages given to the constructor.
      */
     public Double computeRelevance(IList<String> query, URI pageUri) {
-        // TODO: Replace this with actual, working code.
-
-        // TODO: The pseudocode we gave you is not very efficient. When implementing,
+        // The pseudocode we gave you is not very efficient. When implementing,
         // this smethod, you should:
         //
         // 1. Figure out what information can be precomputed in your constructor.
-        //    Add a third field containing that information.
+        // Add a third field containing that information.
         //
         // 2. See if you can combine or merge one or more loops.
+
+        // get the document TF-IDF vectors
         IDictionary<String, Double> tfIdfvector = this.documentTfIdfVectors.get(pageUri);
+        // find the tf-idf vector for the query
         IDictionary<String, Double> tfScoreQuery = this.computeTfScores(query);
         IDictionary<String, Double> queryTfIdf = new ChainedHashDictionary<>();
-        for (String word: query) {
+
+        double numerator = 0.0;
+        for (String word : query) {
+            // produce the vector for the query word and add it to the dictionary
             double idf = 0.0;
             if (this.idfScores.containsKey(word)) {
                 idf = this.idfScores.get(word);
             }
             double tf = tfScoreQuery.get(word);
-            queryTfIdf.put(word, tf*idf);
-        }
-        
-        double numerator = 0.0;
-        for (String word: query) {
+            queryTfIdf.put(word, tf * idf);
+
+            // first part of calculating the cosine similarity, by evaluating the scores.
             double docWordScore = 0.0;
             if (tfIdfvector.containsKey(word)) {
                 docWordScore = tfIdfvector.get(word);
             }
             double queryWordScore = queryTfIdf.get(word);
-            numerator += docWordScore*queryWordScore;
+            numerator += docWordScore * queryWordScore;
         }
-        double denominator = norm(tfIdfvector) * norm(queryTfIdf);
+        // finally get the similarity between the vectors
+        double denominator = this.documentNorm.get(pageUri) * norm(queryTfIdf);
         if (denominator != 0) {
             return numerator / denominator;
         }
         return 0.0;
     }
 
+    /**
+     * Computes the norms for the document tf-idf vectors. Must be called after computing
+     * the document vectors
+     * 
+     * @return A dictionary containing the key as unique URIs of the webpages and its value
+     *          being the norm double of the webpage.
+     */
+    private IDictionary<URI, Double> computeDocNorm() {
+        IDictionary<URI, Double> docNorm = new ChainedHashDictionary<>();
+        for (KVPair<URI, IDictionary<String, Double>> pair : this.documentTfIdfVectors) {
+            docNorm.put(pair.getKey(), norm(pair.getValue()));
+        }
+        return docNorm;
+    }
+
     private double norm(IDictionary<String, Double> tfIdfvector) {
         double result = 0.0;
-        for (KVPair<String, Double> pair: tfIdfvector) {
+        for (KVPair<String, Double> pair : tfIdfvector) {
             double score = pair.getValue();
             result += score * score;
         }
