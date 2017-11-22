@@ -1,8 +1,11 @@
 package search.analyzers;
 
+import datastructures.concrete.ChainedHashSet;
+import datastructures.concrete.KVPair;
+import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.interfaces.IDictionary;
+import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
-import misc.exceptions.NotYetImplementedException;
 import search.models.Webpage;
 
 import java.net.URI;
@@ -36,10 +39,10 @@ public class PageRankAnalyzer {
         // on this class.
 
         // Step 1: Make a graph representing the 'internet'
-        //IDictionary<URI, ISet<URI>> graph = this.makeGraph(webpages);
+        IDictionary<URI, ISet<URI>> graph = this.makeGraph(webpages);
 
         // Step 2: Use this graph to compute the page rank for each webpage
-        //this.pageRanks = this.makePageRanks(graph, decay, limit, epsilon);
+        this.pageRanks = this.makePageRanks(graph, decay, limit, epsilon);
 
         // Note: we don't store the graph as a field: once we've computed the
         // page ranks, we no longer need it!
@@ -57,7 +60,25 @@ public class PageRankAnalyzer {
      * entirely "self-contained".
      */
     private IDictionary<URI, ISet<URI>> makeGraph(ISet<Webpage> webpages) {
-        throw new NotYetImplementedException();
+        IDictionary<URI, ISet<URI>> graph = new ChainedHashDictionary<>();
+        // find all the possible links for the graph.
+        ISet<URI> linkCheck = new ChainedHashSet<>();
+        for (Webpage w: webpages) {
+            linkCheck.add(w.getUri());
+        }
+        // build the graph with key being the node and values representing edges between
+        // other URI node
+        for (Webpage w: webpages) {
+            IList<URI> links = w.getLinks();
+            ISet<URI> edges = new ChainedHashSet<>();
+            for (URI link: links) {
+                if (!link.equals(w.getUri()) && linkCheck.contains(link)) {
+                    edges.add(link);
+                }
+            }
+            graph.put(w.getUri(), edges);
+        }
+        return graph;
     }
 
     /**
@@ -77,14 +98,80 @@ public class PageRankAnalyzer {
                                                    int limit,
                                                    double epsilon) {
         // Step 1: The initialize step should go here
-
-        for (int i = 0; i < limit; i++) {
-            // Step 2: The update step should go here
-
-            // Step 3: the convergence step should go here.
-            // Return early if we've converged.
+        IDictionary<URI, Double> pRank = new ChainedHashDictionary<>();
+        
+        // computing initial rank for every webpage.
+        double initialRank = 1.0 / graph.size(); 
+        for (KVPair<URI, ISet<URI>> node: graph) {
+            pRank.put(node.getKey(), initialRank);
         }
-        throw new NotYetImplementedException();
+        
+        for (int i = 0; i < limit; i++) {
+            //create a map to store new page ranks of the webpages
+            IDictionary<URI, Double> newRank = new ChainedHashDictionary<>();
+            // every webpage common rank value i.e 
+            // (1-d)/N + (if no link webpage -> d*oldRank of no link webpage/N)
+            double rank = (1 - decay) / graph.size();
+            // traverse the graph to add to compute new page rank of th webpages
+            for (KVPair<URI, ISet<URI>> node: graph) {
+                URI link = node.getKey();
+                
+                // initialize new page rank of the webpage if not already done
+                if (!newRank.containsKey(link)) {
+                    newRank.put(link, 0.0);
+                }
+                
+                // all the outgoing links of this webpage.
+                ISet<URI> edges = node.getValue();
+                // if no outgoing links then we must update rank for every webpage.
+                if (edges.isEmpty()) {
+                    // add d*oldRank/size to the rank
+                    rank += decay * pRank.get(link) / graph.size();
+                } else {
+                    // compute the new rank for the outgoing linked webpages.
+                    for (URI edge: edges) {
+                        double oldRank = 0.0;
+                        // get old rank if there was one computed in previous iteration(s).
+                        if (newRank.containsKey(edge)) {
+                            oldRank = newRank.get(edge);
+                        }
+                        
+                        // new rank = old + decay * PR(T_i) / C(T_i)
+                        // PR(T_i) is the page rank of ith webpage that links to this edge webpage
+                        // C(T_i) is the unique number of outgoing links from this ith webpage
+                        double updatedRank = oldRank + (decay * pRank.get(link) / edges.size());
+                        
+                        // add the outgoing webpage updated rank to the map for 
+                        // later changes and convergence comparison
+                        newRank.put(edge, updatedRank);
+                    }
+                }
+            }
+            
+            boolean breakOuterLoop = true;
+            
+            // perform convergence check by comparing the old and the new pagerank
+            // difference to the client specified epsilon value.
+            for (KVPair<URI, Double> oldRank: pRank) {
+                
+                // if difference in pagerank > epsilon then update page rank of 
+                // webpages for next outer most iteration
+                if (oldRank.getValue() - newRank.get(oldRank.getKey()) > epsilon) {
+                    // update to new rank.
+                    for (KVPair<URI, Double> pair: newRank) {
+                        pRank.put(pair.getKey(), pair.getValue() + rank);
+                    }
+                    breakOuterLoop = false;
+                    // exit this inner loop
+                    break;
+                }
+            }
+            // if we reached convergence then exit the loop.
+            if (breakOuterLoop) {
+                break;
+            }         
+        }
+        return pRank;
     }
 
     /**
@@ -94,8 +181,6 @@ public class PageRankAnalyzer {
      *               webpages given to the constructor.
      */
     public double computePageRank(URI pageUri) {
-        // Implementation note: this method should be very simple: just one line!
-        // TODO: Add working code here
-        return 1.0;
+        return this.pageRanks.get(pageUri);
     }
 }
