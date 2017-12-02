@@ -24,7 +24,8 @@ public class AvlTreeDictionary<K extends Comparable<K>, V> implements IDictionar
             this.height = 0;
         }
         
-        public node(node left, node right) {
+        public node(K key, V value, node left, node right) {
+        		this.data = new KVPair<K,V>(key, value);
             this.left = left;
             this.right = right;
             this.height = left.height + right.height;
@@ -57,11 +58,26 @@ public class AvlTreeDictionary<K extends Comparable<K>, V> implements IDictionar
 
     @Override
     public void put(K key, V value) {
-        // TODO Auto-generated method stub
-        
+        	this.root = put(key, value, this.root);
     }
+    
+    
+    private node put(K key, V value, node current) {
+		if(current != null) {
+			if (current.data.getKey().compareTo(key) == 0) {
+				this.size++;
+				return new node(key, value, current.left, current.right);
+			}
+			if (key.compareTo(current.data.getKey())<0) {
+				current.left = put(key, value, current.left);
+			}else {
+				current.right = put(key, value, current.right);
+			}
+		}
+		return new node(key, value);
+	}
 
-    @Override
+	@Override
     public V remove(K key) {
         // TODO Auto-generated method stub
         return null;
@@ -86,5 +102,9 @@ public class AvlTreeDictionary<K extends Comparable<K>, V> implements IDictionar
     public Iterator<KVPair<K, V>> iterator() {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    private node rotate() {
+    		return null;
     }
 }
