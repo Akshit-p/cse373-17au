@@ -15,17 +15,25 @@ public class AvlTreeDictionary<K extends Comparable<K>, V> implements IDictionar
         private KVPair<K,V> data;
         private node left;
         private node right;
+        private int height;
         
         public node(K key, V value) {
             this.data = new KVPair<K,V>(key, value);
             this.left = null;
             this.right = null;
+            this.height = 0;
         }
         
         public node(node left, node right) {
             this.left = left;
             this.right = right;
+            this.height = left.height + right.height;
         }
+    }
+    
+    public AvlTreeDictionary() {
+        this.root = null;
+        this.size = 0;
     }
     
     @Override
@@ -38,8 +46,11 @@ public class AvlTreeDictionary<K extends Comparable<K>, V> implements IDictionar
             if (current.data.getKey().equals(key)) {
                 return current.data.getValue();
             }
-            get(key, current.left);
-            get(key,current.right);
+            if (current.data.getKey().compareTo(key) > 0) { 
+                get(key, current.left);
+            } else {
+                get(key, current.right);
+            }
         }
         throw new NoSuchKeyException();
     }
