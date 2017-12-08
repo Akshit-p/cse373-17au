@@ -61,18 +61,14 @@ public class PageRankAnalyzer {
      */
     private IDictionary<URI, ISet<URI>> makeGraph(ISet<Webpage> webpages) {
         IDictionary<URI, ISet<URI>> graph = new ChainedHashDictionary<>();
-        // find all the possible links for the graph.
-        ISet<URI> linkCheck = new ChainedHashSet<>();
-        for (Webpage w: webpages) {
-            linkCheck.add(w.getUri());
-        }
         // build the graph with key being the node and values representing edges between
         // other URI node
         for (Webpage w: webpages) {
             IList<URI> links = w.getLinks();
             ISet<URI> edges = new ChainedHashSet<>();
             for (URI link: links) {
-                if (!link.equals(w.getUri()) && linkCheck.contains(link)) {
+                Webpage temp = new Webpage(link, null, null, null, null);
+                if (!link.equals(w.getUri()) && webpages.contains(temp)) {
                     edges.add(link);
                 }
             }
@@ -112,7 +108,7 @@ public class PageRankAnalyzer {
             // every webpage common rank value i.e 
             // (1-d)/N + (if no link webpage -> d*oldRank of no link webpage/N)
             double rank = (1 - decay) / graph.size();
-            // traverse the graph to add to compute new page rank of th webpages
+            // traverse the graph to add to compute new page rank of the webpages
             for (KVPair<URI, ISet<URI>> node: graph) {
                 URI link = node.getKey();
                 
